@@ -150,7 +150,15 @@ export function ChatAssistant() {
 
     // Agent 3 — Growth
     await sleep(450);
-    const plan = planGrowth(anchor, intent, policy);
+    const queryTerms = intent.rawQuery.toLowerCase().split(/[^a-z0-9]+/).filter((term) => term.length > 2);
+    const explicitlyRequested = results.filter((product) =>
+      product.name
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((term) => term.length > 2)
+        .some((term) => queryTerms.includes(term)),
+    );
+    const plan = planGrowth(anchor, intent, policy, explicitlyRequested);
     store.log({
       actor: "growth",
       label: `Growth action: ${plan.action}`,

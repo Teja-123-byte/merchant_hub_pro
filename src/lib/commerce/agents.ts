@@ -77,6 +77,7 @@ export function planGrowth(
   anchor: Product | null,
   intent: Intent,
   policy: MerchantPolicy,
+  requestedProducts: Product[] = [],
 ): GrowthPlan {
   if (!anchor) {
     return {
@@ -91,18 +92,26 @@ export function planGrowth(
     };
   }
 
-  const budget = intent.maxPrice ?? anchor.price * 1.6;
+  const explicitlyRequested = requestedProducts.filter(
+    (p) => p.id !== anchor.id && p.stock > 0 && (!intent.maxPrice || p.price <= intent.maxPrice),
+  );
+  const requestedTotal = anchor.price + explicitlyRequested.reduce((sum, p) => sum + p.price, 0);
+  const budget = intent.maxPrice ?? (explicitlyRequested.length ? requestedTotal : anchor.price * 1.6);
   const headroom = Math.max(0, budget - anchor.price);
 
   const candidates = getProducts().filter(
     (p) =>
       p.id !== anchor.id &&
+      !explicitlyRequested.some((requested) => requested.id === p.id) &&
       p.stock > 0 &&
       p.price <= headroom &&
       (p.category === "Accessories" || p.tags.some((t) => anchor.tags.includes(t))),
   ).sort((a, b) => b.price - a.price);
 
-  const attachments = candidates.slice(0, headroom > 1500 ? 2 : 1);
+  const attachments = [
+    ...explicitlyRequested,
+    ...candidates.slice(0, headroom > 1500 ? 2 : 1),
+  ];
   const base = anchor.price;
   const projected = base + attachments.reduce((s, p) => s + p.price, 0);
 
