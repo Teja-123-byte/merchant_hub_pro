@@ -40,7 +40,7 @@ function LoginPage() {
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const res = signIn({ email, password, role });
+    const res = signIn({ email: email.trim(), password, role });
     if (!res.ok) {
       setError(res.error);
       return;

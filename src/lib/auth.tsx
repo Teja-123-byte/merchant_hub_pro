@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!found) {
         return {
           ok: false as const,
-          error: `No ${role} account matches those credentials.`,
+          error: `No ${role} account matches those credentials on this site. Check the workspace type, or create a new ${role} account here.`,
         };
       }
       const { password: _pw, ...safe } = found;

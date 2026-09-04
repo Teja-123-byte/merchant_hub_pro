@@ -170,9 +170,12 @@
   box-shadow: var(--shadow-card);
 }
 
-/* Yellow marker underline used on headline keywords in the template */
+/* Yellow bar below headline keywords */
 @utility marker-underline {
-  background-image: linear-gradient(transparent 62%, var(--accent) 62%);
-  background-repeat: no-repeat;
+  text-decoration-line: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 0.22em;
+  text-underline-offset: 0.1em;
+  text-decoration-skip-ink: none;
   padding-inline: 0.1em;
 }
