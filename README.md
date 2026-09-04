@@ -6,6 +6,8 @@ offers, and completes a policy-gated Razorpay test-mode checkout.
 
 Repository: https://github.com/Teja-123-byte/merchant_ai
 
+Live demo: https://merchant-hub-pro.vercel.app/
+
 # merchant_hub_pro
 
 ## Hackathon Track

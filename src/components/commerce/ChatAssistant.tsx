@@ -265,7 +265,22 @@ export function ChatAssistant() {
 
     // Agent 4 — Payment (Razorpay Test Mode)
     store.log({ actor: "payment", label: "Razorpay Orders API — creating test order" });
-    const rzp = await createRazorpayTestOrder(offer.amount);
+    let rzp;
+    try {
+      rzp = await createRazorpayTestOrder(offer.amount);
+    } catch (error) {
+      const failureReason = error instanceof Error ? error.message : "Razorpay order creation failed.";
+      store.log({ actor: "payment", label: "Razorpay order creation failed", detail: failureReason, status: "error" });
+      patch(messageId, (m) => ({ ...m, offer: { ...offer, state: "settled" } }));
+      push({
+        id: uid(),
+        role: "agent",
+        tone: "failed",
+        text: `I couldn't start the Razorpay test checkout: ${failureReason} Add the Razorpay environment variables to the deployment and try again.`,
+        decision,
+      });
+      return;
+    }
     store.addOrder({
       id: orderId,
       razorpayOrderId: rzp.id,
