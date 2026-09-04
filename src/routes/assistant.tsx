@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ShieldCheck, Sparkles, Wallet } from "lucide-react";
+import { Package, ShieldCheck, Sparkles, Wallet } from "lucide-react";
 import { ChatAssistant } from "@/components/commerce/ChatAssistant";
 import { RoleGuard } from "@/components/site/RoleGuard";
 import { SiteFooter, SiteHeader } from "@/components/site/SiteChrome";
 import { useAuth } from "@/lib/auth";
+import { rupees } from "@/lib/commerce/catalog";
+import { useCommerceStore } from "@/lib/commerce/store";
+import type { Product } from "@/lib/commerce/types";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({
@@ -32,6 +35,7 @@ export const Route = createFileRoute("/assistant")({
 
 function AssistantPage() {
   const { user } = useAuth();
+  const products = useCommerceStore((s) => s.products);
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,6 +62,7 @@ function AssistantPage() {
           </div>
 
           <aside className="space-y-4">
+            <CatalogPreview products={products} />
             <Tip
               icon={<Sparkles className="size-4" />}
               title="Say it naturally"
@@ -79,6 +84,46 @@ function AssistantPage() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+function CatalogPreview({ products }: { products: Product[] }) {
+  return (
+    <section className="panel overflow-hidden">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex items-center gap-2">
+          <span className="grid size-8 place-items-center rounded-lg bg-brand/10 text-brand">
+            <Package className="size-4" />
+          </span>
+          <div>
+            <h2 className="font-display text-base font-bold text-primary">Store catalog</h2>
+            <p className="text-[11px] text-muted-foreground">Live from this merchant</p>
+          </div>
+        </div>
+        <span className="font-mono text-xs text-muted-foreground">{products.length} items</span>
+      </div>
+      {products.length ? (
+        <div className="divide-y divide-border">
+          {products.map((product) => (
+            <div key={product.id} className="px-5 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold leading-tight">{product.name}</p>
+                <span className="shrink-0 font-mono text-xs text-primary">{rupees(product.price)}</span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{product.blurb}</p>
+              <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">
+                {product.stock > 0 ? `${product.stock} available` : "Currently out of stock"}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="px-5 py-6 text-center">
+          <p className="text-sm font-medium">The catalog is being stocked.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Check back soon for products from this merchant.</p>
+        </div>
+      )}
+    </section>
   );
 }
 

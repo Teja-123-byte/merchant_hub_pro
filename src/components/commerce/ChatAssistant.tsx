@@ -60,11 +60,12 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function ChatAssistant() {
   const policy = useCommerceStore((s) => s.policy);
+  const products = useCommerceStore((s) => s.products);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: uid(),
       role: "agent",
-      text: "I'm this store's growth agent. Tell me what you need — with a budget if you have one — and I'll find it, suggest what pairs well, and take you through a gated Razorpay test checkout.",
+      text: "Hi, I'm your shopping assistant. Tell me what you're looking for, who it's for, or what you'll use it for. I'll look through this store's catalog and help you choose — no need to know the perfect product name.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -85,6 +86,11 @@ export function ChatAssistant() {
     setBusy(true);
     setInput("");
     push({ id: uid(), role: "user", text: query });
+
+    const conversationalLead = products.length
+      ? `Got it — I'll look through the ${products.length} product${products.length === 1 ? "" : "s"} in this store for you.`
+      : "Got it — let me check what this store currently has available.";
+    push({ id: uid(), role: "agent", text: conversationalLead });
 
     // Agent 1 — Intent
     store.log({ actor: "intent", label: "Customer request received", detail: query });
@@ -110,7 +116,9 @@ export function ChatAssistant() {
       push({
         id: uid(),
         role: "agent",
-        text: "Nothing in this merchant's catalog matches that. I won't invent a product — try earbuds, a smart watch, a backpack, a power bank or a USB hub.",
+        text: products.length
+          ? `I couldn't find a close match in this store's catalog yet. Could you tell me a little more, like your budget, where you'll use it, or whether you'd prefer something compact, durable, or feature-rich?`
+          : "This store hasn't added any products yet, so I can't make up a recommendation. Once the catalog is stocked, tell me what you need and I'll help you find it.",
         intent,
       });
       setBusy(false);
