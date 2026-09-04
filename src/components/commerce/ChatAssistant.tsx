@@ -117,9 +117,10 @@ export function ChatAssistant() {
         id: uid(),
         role: "agent",
         text: products.length
-          ? `I couldn't find a close match in this store's catalog yet. Could you tell me a little more, like your budget, where you'll use it, or whether you'd prefer something compact, durable, or feature-rich?`
+          ? `I couldn't find a close match for that in this store's catalog yet. Could you tell me a little more, like your budget, where you'll use it, or whether you'd prefer something compact, durable, or feature-rich? Meanwhile, here's what this merchant currently has available — something here might work for you.`
           : "This store hasn't added any products yet, so I can't make up a recommendation. Once the catalog is stocked, tell me what you need and I'll help you find it.",
         intent,
+        results: products,
       });
       setBusy(false);
       return;
